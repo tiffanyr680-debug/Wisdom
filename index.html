@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WisdomVault | Famous Authors & Topics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .master-nav { background-color: #1e1b4b; height: 60px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .author-link { color: #6366f1; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.1s; }
+        .author-link:hover { color: #fff; text-decoration: underline; }
+        .social-btn { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 4px; font-weight: bold; font-size: 14px; width: 260px; transition: 0.3s; }
+        .fb { background: #3b5998; }
+        .xx { background: #000; border: 1px solid rgba(255,255,255,0.1); }
+        .ig { background: #833ab4; }
+        .glass-panel { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 30px; border-radius: 8px; }
+        .column-list { column-count: 4; column-gap: 40px; }
+        @media (max-width: 768px) { .column-list { column-count: 1; } }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body x-data="app()">
+
+    <!-- TOP NAV -->
+    <nav class="master-nav px-8">
+        <div class="max-w-7xl mx-auto w-full flex justify-between items-center text-xs font-bold uppercase tracking-widest">
+            <div class="flex items-center gap-10">
+                <h1 class="text-xl font-black italic tracking-tighter text-white">WISDOM<span class="text-indigo-500">VAULT</span></h1>
+                <div class="hidden lg:flex gap-6">
+                    <a href="#" class="hover:text-indigo-400">Home</a>
+                    <a href="#" class="text-indigo-400">Authors</a>
+                    <a href="#" class="hover:text-indigo-400">Topics</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                 <input type="text" placeholder="search" class="bg-black/50 border border-white/10 rounded px-4 py-1 text-white outline-none w-40">
+                 <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="text-indigo-400">+ ADD NEW</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENT AREA -->
+    <main class="max-w-7xl mx-auto py-12 px-8">
+        
+        <div class="flex flex-col lg:flex-row gap-12">
+            
+            <!-- LEFT SIDEBAR (Matches Screenshot) -->
+            <aside class="w-full lg:w-72 space-y-4">
+                <p class="text-sm font-bold text-slate-500 mb-6">Inspirational Quotes at WisdomVault</p>
+                <div class="social-btn fb"><span>f</span> Like us on Facebook</div>
+                <div class="social-btn xx"><span>X</span> Follow us on X</div>
+                <div class="social-btn ig"><span>📷</span> Follow us on Instagram</div>
+            </aside>
+
+            <!-- RIGHT MAIN AREA: AUTHOR DIRECTORY -->
+            <div class="flex-1">
+                <div class="glass-panel">
+                    <h2 class="text-xl font-bold mb-8 text-slate-400 border-b border-white/5 pb-4">Explore Inspirational Quotes by Famous Authors</h2>
+                    <div class="column-list space-y-2">
+                        <template x-for="author in authors">
+                            <div class="author-link" x-text="author"></div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- RECENTLY ADDED SECTION -->
+                <div class="mt-12 glass-panel">
+                    <h2 class="text-xl font-bold mb-8 text-slate-400">Your Private Collection</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <template x-for="q in myQuotes">
+                            <div class="bg-white/5 p-6 rounded-lg border border-white/5 italic text-lg leading-relaxed">
+                                "<span x-text="q.text"></span>"
+                                <div class="mt-4 text-[10px] font-black text-indigo-500 uppercase tracking-widest">— <span x-text="q.author"></span></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ADD MODAL -->
+    <div id="addModal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6 backdrop-blur-xl">
+        <div class="bg-slate-900 p-12 rounded-lg border border-white/10 max-w-lg w-full">
+            <h2 class="text-2xl font-black mb-8 text-white italic">ADD NEW WISDOM</h2>
+            <div class="space-y-4">
+                <textarea id="inQuote" placeholder="The Quote..." class="w-full bg-black/50 border border-white/5 p-4 rounded text-white outline-none h-32"></textarea>
+                <input id="inAuthor" type="text" placeholder="Author" class="w-full bg-black/50 border border-white/5 p-4 rounded text-white">
+                <div class="flex gap-4 pt-6">
+                    <button onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-4 text-slate-500 font-bold uppercase text-[10px]">Cancel</button>
+                    <button @click="add()" class="flex-1 bg-indigo-600 py-4 rounded font-black uppercase text-xs">Save to Vault</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function app() {
+            return {
+                authors: [
+                    'Adam Sandler', 'Albert Einstein', 'Alex Sterling', 'Anne Frank', 'Aristotle', 
+                    'Barack Obama', 'Benjamin Franklin', 'Bill Gates', 'Bruce Lee', 'Buddha',
+                    'Carl Jung', 'Cristiano Ronaldo', 'Dalai Lama', 'David Mitchell', 'Drake',
+                    'Elon Musk', 'Ernest Hemingway', 'George Washington', 'Helen Keller', 'Jesus Christ',
+                    'John F. Kennedy', 'LeBron James', 'Leonardo da Vinci', 'Marcus Aurelius', 'Marilyn Monroe',
+                    'Martin Luther King Jr.', 'Maya Angelou', 'Michael Jordan', 'Nelson Mandela', 'Oscar Wilde',
+                    'Robert Frost', 'Rumi', 'Socrates', 'Steve Jobs', 'Taylor Swift', 'Warren Buffett', 'Winston Churchill'
+                ],
+                myQuotes: JSON.parse(localStorage.getItem('my_wisdom')) || [],
+                add() {
+                    const t = document.getElementById('inQuote').value;
+                    const a = document.getElementById('inAuthor').value;
+                    if(!t) return;
+                    this.myQuotes.unshift({ text: t, author: a });
+                    localStorage.setItem('my_wisdom', JSON.stringify(this.myQuotes));
+                    document.getElementById('addModal').classList.add('hidden');
+                    document.getElementById('inQuote').value = '';
+                    document.getElementById('inAuthor').value = '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
