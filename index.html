@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WisdomVault | Tiffany's Private Collection</title>
+    <style>
+        body { background: #020617; color: white; font-family: sans-serif; padding: 50px; text-align: center; }
+        .search-box { width: 100%; padding: 20px; font-size: 20px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .card { background: #111827; border: 1px solid #374151; padding: 30px; border-radius: 20px; position: relative; }
+        .btn { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .filter-btn { background: #1f2937; color: #94a3b8; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; margin: 5px; font-size: 12px; }
+        .filter-active { background: #6366f1; color: white; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 40px; margin-bottom: 10px;">WISDOM<span style="color: #6366f1">VAULT</span></h1>
+    <p style="color: #64748b; margin-bottom: 40px;">PRIVATE COLLECTION</p>
+
+    <!-- STABLE SEARCH -->
+    <input type="text" id="mainSearch" placeholder="Type here to search..." class="search-box" onkeyup="filter()">
+
+    <!-- QUICK CATEGORY FILTERS -->
+    <div style="margin-bottom: 40px;">
+        <button class="filter-btn filter-active" onclick="setCat('All')">ALL</button>
+        <button class="filter-btn" onclick="setCat('Mindset')">MINDSET</button>
+        <button class="filter-btn" onclick="setCat('Strategy')">STRATEGY</button>
+    </div>
+
+    <div id="qGrid" class="grid">
+        <!-- Quotes Injected Here -->
+    </div>
+
+    <script>
+        var quotes = [
+            { text: "Your income is a mirror of your self-worth.", author: "Arlan Hamilton", cat: "Mindset" },
+            { text: "Everything is figureoutable.", author: "Marie Forleo", cat: "Strategy" },
+            { text: "Success is rented, and rent is due every day.", author: "J.J. Watt", cat: "Mindset" }
+        ];
+
+        function render(data) {
+            var html = '';
+            for(var i=0; i<data.length; i++) {
+                html += '<div class="card">' +
+                        '<div style="font-size: 40px; opacity: 0.1; position: absolute; top: 10px; left: 10px;">“</div>' +
+                        '<p style="font-size: 20px; margin-bottom: 20px; position: relative;">' + data[i].text + '</p>' +
+                        '<b style="color: #6366f1; font-size: 12px; text-transform: uppercase;">' + data[i].author + '</b>' +
+                        '</div>';
+            }
+            document.getElementById('qGrid').innerHTML = html;
+        }
+
+        function filter() {
+            var val = document.getElementById('mainSearch').value.toLowerCase();
+            var filtered = quotes.filter(function(q) {
+                return q.text.toLowerCase().includes(val) || q.author.toLowerCase().includes(val);
+            });
+            render(filtered);
+        }
+
+        function setCat(cat) {
+            // Update button styles
+            var btns = document.getElementsByClassName('filter-btn');
+            for(var i=0; i<btns.length; i++) { btns[i].classList.remove('filter-active'); }
+            event.target.classList.add('filter-active');
+
+            if(cat === 'All') { render(quotes); return; }
+            var filtered = quotes.filter(function(q) { return q.cat === cat; });
+            render(filtered);
+        }
+
+        // Init
+        render(quotes);
+    </script>
+</body>
+</html>
