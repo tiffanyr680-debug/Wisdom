@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WisdomVault | Instant Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #020617; color: white; font-family: sans-serif; }
+        .nav { background: #1e1b4b; padding: 20px 40px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #2d2a5d; }
+        .box { background: #0f172a; border: 1px solid #1e293b; padding: 30px; border-radius: 15px; margin-bottom: 30px; }
+        .author-btn { color: #818cf8; cursor: pointer; display: block; margin-bottom: 10px; font-size: 14px; }
+        .author-btn:hover { color: white; text-decoration: underline; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .quote-card { background: #111827; padding: 30px; border-radius: 20px; border: 1px solid #1e293b; }
+        .hidden { display: none; }
+        input { background: #020617; border: 1px solid #334155; padding: 10px; border-radius: 5px; color: white; width: 250px; outline: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <h1 onclick="location.reload()" style="font-weight: 900; cursor: pointer;">WISDOMVAULT</h1>
+        <div>
+            <input type="text" id="find" onkeyup="search()" placeholder="search...">
+            <button onclick="document.getElementById('pop').style.display='flex'" style="background: #6366f1; padding: 8px 15px; border-radius: 5px; font-weight: bold; margin-left: 10px;">+ ADD</button>
+        </div>
+    </nav>
+
+    <div style="max-width: 1100px; margin: 50px auto; padding: 0 20px;">
+        
+        <!-- DIRECTORY -->
+        <div class="box">
+            <h2 style="color: #64748b; font-size: 12px; font-weight: bold; margin-bottom: 30px; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">EXPLORE FAMOUS AUTHORS</h2>
+            <div class="grid-4" id="alist"></div>
+        </div>
+
+        <!-- RESULTS (SCREEN AUTOMATICALLY JUMPS HERE) -->
+        <div id="results-anchor">
+            <h2 id="title" style="color: #64748b; font-size: 12px; font-weight: bold; margin-bottom: 30px;">MY COLLECTION</h2>
+            <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div id="pop" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center;">
+        <div class="box" style="width: 400px;">
+            <h3>Add New Quote</h3>
+            <textarea id="t" style="width: 100%; height: 100px; background: #000; color: #fff; margin: 10px 0; padding: 10px;"></textarea>
+            <input id="a" type="text" placeholder="Author" style="width: 100%;">
+            <button onclick="save()" style="background: #6366f1; width: 100%; padding: 15px; margin-top: 15px; border-radius: 5px; font-weight: bold;">SAVE WISDOM</button>
+            <button onclick="document.getElementById('pop').style.display='none'" style="margin-top: 10px; color: #64748b;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        var famous = [
+            { a: "Steve Jobs", t: "The only way to do great work is to love what you do." },
+            { a: "Steve Jobs", t: "Innovation distinguishes between a leader and a follower." },
+            { a: "Albert Einstein", t: "Imagination is more important than knowledge." },
+            { a: "Albert Einstein", t: "Try not to become a man of success, but rather a man of value." },
+            { a: "LeBron James", t: "I'm going to use all my tools, my ability and my mind to help us win." },
+            { a: "Marie Forleo", t: "Everything is figureoutable." },
+            { a: "Arlan Hamilton", t: "Your income is a mirror of your self-worth." },
+            { a: "Marcus Aurelius", t: "The soul becomes dyed with the color of its thoughts." }
+        ];
+
+        var names = ["Adam Sandler", "Albert Einstein", "Aristotle", "Barack Obama", "Benjamin Franklin", "Bill Gates", "Bruce Lee", "Buddha", "LeBron James", "Marie Forleo", "Arlan Hamilton", "Marcus Aurelius", "Steve Jobs", "Winston Churchill"];
+
+        var myDb = JSON.parse(localStorage.getItem('v7')) || [];
+
+        function init() {
+            var list = document.getElementById('alist');
+            list.innerHTML = names.map(n => `<span class="author-btn" onclick="setSearch('${n}')">${n}</span>`).join('');
+            render(myDb);
+        }
+
+        function render(data) {
+            var grid = document.getElementById('results');
+            grid.innerHTML = data.map(q => `
+                <div class="quote-card">
+                    <p style="font-size: 24px; font-family: serif; font-style: italic; margin-bottom: 20px;">"${q.t}"</p>
+                    <b style="color: #6366f1; font-size: 12px; text-transform: uppercase;">— ${q.a}</b>
+                </div>
+            `).join('');
+        }
+
+        function setSearch(name) {
+            document.getElementById('find').value = name;
+            search();
+            // JUMP TO RESULTS
+            document.getElementById('results-anchor').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function search() {
+            var val = document.getElementById('find').value.toLowerCase();
+            if(!val) { render(myDb); return; }
+            document.getElementById('title').innerText = "SEARCH RESULTS: " + val.toUpperCase();
+            var filtered = famous.concat(myDb).filter(q => q.a.toLowerCase().includes(val) || q.t.toLowerCase().includes(val));
+            render(filtered);
+        }
+
+        function save() {
+            var text = document.getElementById('t').value;
+            var auth = document.getElementById('a').value;
+            if(!text) return;
+            myDb.unshift({ t: text, a: auth || 'Tiffany' });
+            localStorage.setItem('v7', JSON.stringify(myDb));
+            document.getElementById('pop').style.display = 'none';
+            search();
+        }
+
+        init();
+    </script>
+</body>
+</html>
