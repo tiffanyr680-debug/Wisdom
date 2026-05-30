@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WisdomVault | Tiffany's Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;900&family=Crimson+Pro:italic,wght@600&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+        .nav-bar { background-color: #1e1b4b; border-bottom: 1px solid #2d2a5d; height: 70px; display: flex; align-items: center; padding: 0 40px; position: sticky; top: 0; z-index: 100; }
+        .box-panel { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 30px; margin-bottom: 30px; }
+        .author-grid { column-count: 4; column-gap: 20px; }
+        .author-item { color: #818cf8; font-size: 14px; margin-bottom: 10px; cursor: pointer; display: block; width: fit-content; transition: 0.2s; }
+        .author-item:hover { color: white; transform: translateX(5px); }
+        .quote-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; transition: 0.3s; }
+        .quote-card:hover { border-color: #6366f1; }
+        .quote-serif { font-family: 'Crimson Pro', serif; font-size: 1.5rem; line-height: 1.4; color: #f1f5f9; }
+        .hidden { display: none !important; }
+        .search-box { background: #020617 !important; border: 1px solid #1e293b !important; padding: 10px 20px; border-radius: 8px; color: white !important; width: 300px; outline: none; }
+    </style>
+</head>
+<body onload="init()">
+
+    <nav class="nav-bar">
+        <div class="flex-1 flex items-center gap-10">
+            <h1 onclick="location.reload()" class="text-2xl font-black italic tracking-tighter cursor-pointer uppercase">WISDOM<span class="text-indigo-400">VAULT</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <input type="text" id="searchInput" onkeyup="doSearch()" placeholder="search authors or quotes..." class="search-box">
+            <button onclick="showModal(true)" class="bg-indigo-600 px-6 py-2 rounded-lg font-bold text-xs uppercase">+ ADD NEW</button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-10">
+        
+        <!-- AUTHOR DIRECTORY -->
+        <div class="box-panel">
+            <h2 class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mb-8 pb-4 border-b border-white/5">Explore Quotes by Famous Authors</h2>
+            <div class="author-grid" id="authorList"></div>
+        </div>
+
+        <!-- SEARCH RESULTS / COLLECTION -->
+        <div id="resultsSection">
+            <h2 id="resultsTitle" class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mb-8 ml-2">My Private Wisdom Collection</h2>
+            <div id="quoteGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Quotes pop up here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL -->
+    <div id="modalOverlay" class="hidden fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-6">
+        <div class="bg-[#0f172a] border border-white/10 p-12 rounded-2xl max-w-lg w-full">
+            <h2 class="text-2xl font-black mb-8 italic">CAPTURE NEW WISDOM</h2>
+            <div class="space-y-4">
+                <textarea id="inText" placeholder="The Quote..." class="w-full bg-black/50 border border-white/5 p-4 rounded-lg text-white outline-none h-32"></textarea>
+                <input id="inAuthor" type="text" placeholder="Author" class="w-full bg-black/50 border border-white/5 p-3 rounded-lg text-white">
+                <div class="flex gap-4 pt-6">
+                    <button onclick="showModal(false)" class="flex-1 py-3 text-slate-500 font-bold uppercase text-[10px]">Cancel</button>
+                    <button onclick="saveNew()" class="flex-1 bg-indigo-600 py-3 rounded-lg font-bold text-white uppercase text-[10px]">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database of famous quotes
+        const famousData = [
+            { author: "Steve Jobs", text: "The only way to do great work is to love what you do." },
+            { author: "Steve Jobs", text: "Stay hungry, stay foolish." },
+            { author: "Albert Einstein", text: "Imagination is more important than knowledge." },
+            { author: "Albert Einstein", text: "Life is like riding a bicycle. To keep your balance, you must keep moving." },
+            { author: "Marcus Aurelius", text: "Waste no more time arguing about what a good man should be. Be one." },
+            { author: "Marcus Aurelius", text: "The happiness of your life depends upon the quality of your thoughts." },
+            { author: "LeBron James", text: "You can't be afraid to fail. It's the only way you succeed." },
+            { author: "Marie Forleo", text: "Everything is figureoutable." },
+            { author: "Arlan Hamilton", text: "Your income is a mirror of your self-worth." }
+        ];
+
+        const authors = ['Adam Sandler', 'Albert Einstein', 'Aristotle', 'Barack Obama', 'Benjamin Franklin', 'Bill Gates', 'Bruce Lee', 'Buddha', 'Carl Jung', 'Cristiano Ronaldo', 'Dalai Lama', 'Drake', 'Elon Musk', 'Ernest Hemingway', 'Helen Keller', 'Jesus Christ', 'John F. Kennedy', 'LeBron James', 'Leonardo da Vinci', 'Marcus Aurelius', 'Marilyn Monroe', 'Martin Luther King Jr.', 'Maya Angelou', 'Michael Jordan', 'Nelson Mandela', 'Oscar Wilde', 'Robert Frost', 'Rumi', 'Socrates', 'Steve Jobs', 'Taylor Swift', 'Warren Buffett', 'Winston Churchill'];
+
+        let myDb = JSON.parse(localStorage.getItem('tiffany_vault_final')) || [];
+
+        function init() {
+            renderAuthors(authors);
+            renderQuotes(myDb);
+        }
+
+        function renderAuthors(list) {
+            const div = document.getElementById('authorList');
+            div.innerHTML = list.map(a => `<span class="author-item" onclick="setSearch('${a}')">${a}</span>`).join('');
+        }
+
+        function renderQuotes(data) {
+            const grid = document.getElementById('quoteGrid');
+            grid.innerHTML = data.map(q => `
+                <div class="quote-card animate-in fade-in zoom-in duration-300">
+                    <p class="quote-serif mb-6 italic text-slate-100">"${q.text}"</p>
+                    <p class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest">— ${q.author}</p>
+                </div>
+            `).join('');
+        }
+
+        function setSearch(name) {
+            document.getElementById('searchInput').value = name;
+            doSearch();
+        }
+
+        function doSearch() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            if(!val) {
+                document.getElementById('resultsTitle').innerText = "My Private Wisdom Collection";
+                renderQuotes(myDb);
+                return;
+            }
+
+            document.getElementById('resultsTitle').innerText = "Search Results: " + val;
+            
+            // Search through BOTH famous data and your own database
+            const filteredFamous = famousData.filter(q => q.author.toLowerCase().includes(val) || q.text.toLowerCase().includes(val));
+            const filteredMy = myDb.filter(q => q.author.toLowerCase().includes(val) || q.text.toLowerCase().includes(val));
+            
+            renderQuotes([...filteredFamous, ...filteredMy]);
+        }
+
+        function showModal(show) { document.getElementById('modalOverlay').classList.toggle('hidden', !show); }
+
+        function saveNew() {
+            const t = document.getElementById('inText').value;
+            const a = document.getElementById('inAuthor').value;
+            if(!t) return;
+            myDb.unshift({ text: t, author: a || 'Tiffany' });
+            localStorage.setItem('tiffany_vault_final', JSON.stringify(myDb));
+            showModal(false);
+            doSearch(); // Refresh current view
+        }
+
+        init();
+    </script>
+</body>
+</html>
